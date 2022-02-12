@@ -48,6 +48,12 @@ public class MainController {
                     pane.getChildren().add(c);
                     cell.draw();
                 }
+                else {
+                    Cell cellToRemove =
+                            cells.stream().filter(cell -> cell.getX() == x && cell.getY() == y).findAny().get();
+                    pane.getChildren().remove(cellToRemove.getCircle());
+                    cells.removeIf(cell -> cell.equals(cellToRemove));
+                }
             }
         });
 

@@ -35,6 +35,10 @@ public class Cell {
         this.y = y;
     }
 
+    public Circle getCircle() {
+        return circle;
+    }
+
     public void draw(){
         circle.setRadius(radius);
         circle.setTranslateX(x);
