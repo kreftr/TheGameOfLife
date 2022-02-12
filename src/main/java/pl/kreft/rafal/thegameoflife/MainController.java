@@ -4,7 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+
+import java.util.ArrayList;
 
 public class MainController {
 
@@ -15,6 +18,9 @@ public class MainController {
     private int spots = 100;
     private int squareSize = size / spots;
 
+    private ArrayList<Cell> cells = new ArrayList<>();
+
+
     @FXML
     public void initialize(){
         for (int i=0; i < size; i+=squareSize){
@@ -24,6 +30,17 @@ public class MainController {
                 r.setStroke(Color.BLACK);
                 pane.getChildren().add(r);
             }
+        }
+
+        for (int i=0; i < 5; i++){
+            Circle c = new Circle();
+            double radius = squareSize / 3.0;
+            int x = squareSize / 2 + squareSize * (int)(Math.random() * spots);
+            int y = squareSize / 2 + squareSize * (int)(Math.random() * spots);
+            Cell cell = new Cell(x, y, radius, c);
+            cells.add(cell);
+            pane.getChildren().add(c);
+            cell.draw();
         }
     }
 
