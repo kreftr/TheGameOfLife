@@ -1,13 +1,16 @@
 package pl.kreft.rafal.thegameoflife;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class MainController {
 
@@ -32,16 +35,22 @@ public class MainController {
             }
         }
 
-        for (int i=0; i < 5; i++){
-            Circle c = new Circle();
-            double radius = squareSize / 3.0;
-            int x = squareSize / 2 + squareSize * (int)(Math.random() * spots);
-            int y = squareSize / 2 + squareSize * (int)(Math.random() * spots);
-            Cell cell = new Cell(x, y, radius, c);
-            cells.add(cell);
-            pane.getChildren().add(c);
-            cell.draw();
-        }
+        pane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                int x = (int)(mouseEvent.getX() / squareSize) * squareSize + squareSize / 2;
+                int y = (int)(mouseEvent.getY() / squareSize) * squareSize + squareSize / 2;
+                if (cells.stream().noneMatch(cell -> cell.getX() == x && cell.getY() == y)){
+                    Circle c = new Circle();
+                    double radius = squareSize / 3.0;
+                    Cell cell = new Cell(x, y, radius, c);
+                    cells.add(cell);
+                    pane.getChildren().add(c);
+                    cell.draw();
+                }
+            }
+        });
+
     }
 
 }
