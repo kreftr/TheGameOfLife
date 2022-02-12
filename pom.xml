@@ -60,7 +60,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>pl.kreft.rafal.thegameoflife/pl.kreft.rafal.thegameoflife.HelloApplication
+                            <mainClass>pl.kreft.rafal.thegameoflife/pl.kreft.rafal.thegameoflife.MainApplication
                             </mainClass>
                         </configuration>
                     </execution>
