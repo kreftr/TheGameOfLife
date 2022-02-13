@@ -61,7 +61,6 @@ public class MainController {
         return newCells;
     }
 
-
     @FXML
     public void initialize(){
 

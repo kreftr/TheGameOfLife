@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class MainApplication extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
@@ -15,6 +16,12 @@ public class MainApplication extends Application {
         stage.setTitle("Game of Life");
         stage.setScene(scene);
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        System.exit(0);
+        super.stop();
     }
 
     public static void main(String[] args) {
