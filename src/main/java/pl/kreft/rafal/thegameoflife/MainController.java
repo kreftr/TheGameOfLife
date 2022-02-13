@@ -32,61 +32,33 @@ public class MainController {
 
     private ArrayList<Cell> cells = new ArrayList<>();
     private boolean isRunning = false;
+    private boolean stop = false;
 
 
-    public int countNeighbours(int x, int y){
+    public int countNeighbours(Cell c){
         int neighbours = 0;
         for (Cell cell : cells){
-            if (x==cell.getX() && y-squareSize==cell.getY()) neighbours++;
-            else if (x+squareSize==cell.getX() && y-squareSize==cell.getY()) neighbours++;
-            else if (x+squareSize==cell.getX() && y==cell.getY()) neighbours++;
-            else if (x+squareSize==cell.getX() && y+squareSize==cell.getY()) neighbours++;
-            else if (x==cell.getX() && y+squareSize==cell.getY()) neighbours++;
-            else if (x-squareSize==cell.getX() && y+squareSize==cell.getY()) neighbours++;
-            else if (x-squareSize==cell.getX() && y==cell.getY()) neighbours++;
-            else if (x-squareSize==cell.getX() && y-squareSize==cell.getY()) neighbours++;
+            if (!cell.equals(c) &&
+                    Math.sqrt(
+                            Math.pow(cell.getX()-c.getX(),2)+Math.pow(cell.getY()-c.getY(),2)
+                    ) <= squareSize*Math.sqrt(2))
+                neighbours++;
         }
         return neighbours;
     }
 
     public ArrayList<Cell> cellsToCreate(){
-        ArrayList<Cell> cellsToCreate = new ArrayList<>(cells);
-        for (Cell c : cells){
-            if (countNeighbours((int)c.getX(),(int)c.getY()-squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX() && cell.getY()==c.getY()-squareSize)){
-                cellsToCreate.add(new Cell(c.getX(), c.getY()-squareSize, squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()+squareSize,(int)c.getY()-squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()+squareSize && cell.getY()==c.getY()-squareSize)){
-                cellsToCreate.add(new Cell(c.getX()+squareSize, c.getY()-squareSize, squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()+squareSize,(int)c.getY())==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()+squareSize && cell.getY()==c.getY())){
-                cellsToCreate.add(new Cell(c.getX()+squareSize, c.getY(), squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()+squareSize,(int)c.getY()+squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()+squareSize && cell.getY()==c.getY()+squareSize)){
-                cellsToCreate.add(new Cell(c.getX()+squareSize, c.getY()+squareSize, squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX(),(int)c.getY()+squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX() && cell.getY()==c.getY()+squareSize)){
-                cellsToCreate.add(new Cell(c.getX(), c.getY()+squareSize, squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()-squareSize,(int)c.getY()+squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()-squareSize && cell.getY()==c.getY()+squareSize)){
-                cellsToCreate.add(new Cell(c.getX()-squareSize, c.getY()+squareSize, squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()-squareSize,(int)c.getY())==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()-squareSize && cell.getY()==c.getY())){
-                cellsToCreate.add(new Cell(c.getX()-squareSize, c.getY(), squareSize / 3.0, new Circle()));
-            }
-            else if (countNeighbours((int)c.getX()-squareSize,(int)c.getY()-squareSize)==3 &&
-                    cellsToCreate.stream().noneMatch(cell -> cell.getX()==c.getX()-squareSize && cell.getY()==c.getY()-squareSize)){
-                cellsToCreate.add(new Cell(c.getX()-squareSize, c.getY()-squareSize, squareSize / 3.0, new Circle()));
+        ArrayList<Cell> newCells = new ArrayList();
+        for (int i = 0; i < size; i+=squareSize){
+            for (int j = 0; j < size; j+=squareSize){
+                int x = i+squareSize/2;
+                int y = j+squareSize/2;
+                Cell newCell = new Cell(x, y, squareSize/3.0, new Circle());
+                if (cells.stream().noneMatch(cell -> cell.getX()== x && cell.getY()== y) &&
+                        countNeighbours(newCell) == 3) newCells.add(newCell);
             }
         }
-        cellsToCreate.removeAll(cells);
-        return cellsToCreate;
+        return newCells;
     }
 
 
@@ -129,8 +101,11 @@ public class MainController {
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                isRunning = true;
-                simulation.start();
+                if (!simulation.isAlive()&&!isRunning){
+                    isRunning = true;
+                    simulation.start();
+                }
+                else stop = !stop;
             }
         });
 
@@ -139,30 +114,23 @@ public class MainController {
     void runSimulation(){
 
         while (isRunning) {
-
-            Platform.runLater(()->{
-                ArrayList<Cell> cellsToCreate = cellsToCreate();
-                List<Cell> cellsToRemove =
-                        cells.stream().filter(cell -> !(countNeighbours((int)cell.getX(), (int)cell.getY()) == 2 ||
-                                countNeighbours((int)cell.getX(), (int)cell.getY()) == 3)).toList();
-                cellsToRemove.forEach(cell -> pane.getChildren().remove(cell.getCircle()));
-                cells.removeAll(cellsToRemove);
-                for (Cell c : cellsToCreate) {
-                    pane.getChildren().add(c.getCircle());
-                    c.draw();
-                }
-                cells.addAll(cellsToCreate);
-                cellsToCreate.clear();
-            });
-
+            if (!stop) {
+                Platform.runLater(()->{
+                    ArrayList<Cell> cellsToCreate = cellsToCreate();
+                    List<Cell> cellsToRemove =
+                            cells.stream().filter(cell -> !(countNeighbours(cell) == 2 ||
+                                    countNeighbours(cell) == 3)).toList();
+                    cellsToRemove.forEach(cell -> pane.getChildren().remove(cell.getCircle()));
+                    cells.removeAll(cellsToRemove);
+                    cellsToCreate.forEach(cell -> {pane.getChildren().add(cell.getCircle()); cell.draw();});
+                    cells.addAll(cellsToCreate);
+                    cellsToCreate.clear();
+                });
+            }
             try {
                 Thread.sleep(1000);
-
-            } catch (InterruptedException e) {
-
-            }
+            } catch (InterruptedException e) {}
         }
-        System.out.println("THREAD KILLED");
     }
 
 }

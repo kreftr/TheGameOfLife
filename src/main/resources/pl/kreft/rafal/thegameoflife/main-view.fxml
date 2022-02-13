@@ -9,7 +9,7 @@
    </center>
    <right>
       <Pane prefHeight="700.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-         <Button fx:id="button" layoutX="124.0" layoutY="188.0" mnemonicParsing="false" text="Start"/>
+         <Button fx:id="button" layoutX="124.0" layoutY="188.0" mnemonicParsing="false" text="Start/Stop"/>
       </Pane>
    </right>
 </BorderPane>
