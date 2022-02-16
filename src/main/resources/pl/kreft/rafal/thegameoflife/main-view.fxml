@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.kreft.rafal.thegameoflife.MainController">
    <center>
@@ -9,8 +10,39 @@
    </center>
    <right>
       <Pane prefHeight="700.0" prefWidth="300.0" BorderPane.alignment="CENTER">
-         <Button fx:id="button" layoutX="124.0" layoutY="89.0" mnemonicParsing="false" text="Start/Stop" />
-         <Button fx:id="clearBtn" layoutX="137.0" layoutY="175.0" mnemonicParsing="false" text="Clear" />
+         <Button fx:id="button" layoutX="122.0" layoutY="200.0" mnemonicParsing="false" text="Start/Stop" />
+         <Button fx:id="clearBtn" layoutX="135.0" layoutY="301.0" mnemonicParsing="false" text="Clear" />
+         <Button fx:id="speedUpBtn" layoutX="55.0" layoutY="250.0" mnemonicParsing="false" text="Speed up" />
+         <Button fx:id="slowDownBtn" layoutX="191.0" layoutY="250.0" mnemonicParsing="false" text="Slow down" />
+         <Label layoutX="37.0" layoutY="14.0" text="Conway's Game of Life">
+            <font>
+               <Font size="24.0" />
+            </font></Label>
+         <Label fx:id="statusLabel" layoutX="36.0" layoutY="62.0" text="Status: Stopped">
+            <font>
+               <Font size="18.0" />
+            </font>
+         </Label>
+         <Label fx:id="cyclesLabel" layoutX="35.0" layoutY="101.0" text="Cycles: 0">
+            <font>
+               <Font size="18.0" />
+            </font>
+         </Label>
+         <Label fx:id="livingLabel" layoutX="180.0" layoutY="62.0" text="Living: 0">
+            <font>
+               <Font size="18.0" />
+            </font>
+         </Label>
+         <Label fx:id="deadLabel" layoutX="180.0" layoutY="101.0" text="Dead: 0">
+            <font>
+               <Font size="18.0" />
+            </font>
+         </Label>
+         <Label fx:id="speedLabel" layoutX="35.0" layoutY="145.0" text="Speed: 1000ms">
+            <font>
+               <Font size="18.0" />
+            </font>
+         </Label>
       </Pane>
    </right>
 </BorderPane>

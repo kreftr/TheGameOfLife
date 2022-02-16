@@ -26,10 +26,28 @@ public class MainController {
     private Button button;
     @FXML
     private Button clearBtn;
+    @FXML
+    private Button speedUpBtn;
+    @FXML
+    private Button slowDownBtn;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label cyclesLabel;
+    @FXML
+    private Label speedLabel;
+    @FXML
+    private Label livingLabel;
+    @FXML
+    private Label deadLabel;
+
 
     private int size = 700;
     private int spots = 100;
     private int squareSize = size / spots;
+
+    private int cycles = 0;
+    private int speed = 1000;
 
     private ArrayList<Cell> cells = new ArrayList<>();
     private boolean isRunning = false;
@@ -97,6 +115,7 @@ public class MainController {
                     pane.getChildren().remove(cellToRemove.getCircle());
                     cells.removeIf(cell -> cell.equals(cellToRemove));
                 }
+                livingLabel.setText("Living: "+cells.size());
             }
         });
 
@@ -105,9 +124,14 @@ public class MainController {
             public void handle(ActionEvent actionEvent) {
                 if (!simulation.isAlive()&&!isRunning){
                     isRunning = true;
+                    statusLabel.setText("Status: Running");
                     simulation.start();
                 }
-                else stop = !stop;
+                else {
+                    if (stop) statusLabel.setText("Status: Running");
+                    else statusLabel.setText("Status: Stopped");
+                    stop = !stop;
+                }
             }
         });
 
@@ -117,6 +141,27 @@ public class MainController {
                 stop = true;
                 cells.stream().forEach(cell -> pane.getChildren().remove(cell.getCircle()));
                 cells.clear();
+                cycles = 0;
+                statusLabel.setText("Status: Stopped");
+                cyclesLabel.setText("Cycles: 0");
+                livingLabel.setText("Living: 0");
+                deadLabel.setText("Dead: 0");
+            }
+        });
+
+        speedUpBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if (speed > 100) speed-=100;
+                speedLabel.setText("Speed: "+speed+"ms");
+            }
+        });
+
+        slowDownBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                if (speed < 2000) speed+=100;
+                speedLabel.setText("Speed: "+speed+"ms");
             }
         });
 
@@ -131,15 +176,19 @@ public class MainController {
                     List<Cell> cellsToRemove =
                             cells.stream().filter(cell -> !(countNeighbours(cell) == 2 ||
                                     countNeighbours(cell) == 3)).toList();
+                    deadLabel.setText("Dead: "+cellsToRemove.size());
                     cellsToRemove.forEach(cell -> pane.getChildren().remove(cell.getCircle()));
                     cells.removeAll(cellsToRemove);
                     cellsToCreate.forEach(cell -> {pane.getChildren().add(cell.getCircle()); cell.draw();});
                     cells.addAll(cellsToCreate);
                     cellsToCreate.clear();
+                    livingLabel.setText("Living: "+cells.size());
+                    cycles++;
+                    cyclesLabel.setText("Cycles: "+cycles);
                 });
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(speed);
             } catch (InterruptedException e) {}
         }
     }
