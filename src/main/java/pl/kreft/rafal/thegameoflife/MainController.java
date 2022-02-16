@@ -24,7 +24,8 @@ public class MainController {
     private Pane pane;
     @FXML
     private Button button;
-
+    @FXML
+    private Button clearBtn;
 
     private int size = 700;
     private int spots = 100;
@@ -47,6 +48,7 @@ public class MainController {
         return neighbours;
     }
 
+
     public ArrayList<Cell> cellsToCreate(){
         ArrayList<Cell> newCells = new ArrayList();
         for (int i = 0; i < size; i+=squareSize){
@@ -60,6 +62,7 @@ public class MainController {
         }
         return newCells;
     }
+
 
     @FXML
     public void initialize(){
@@ -105,6 +108,15 @@ public class MainController {
                     simulation.start();
                 }
                 else stop = !stop;
+            }
+        });
+
+        clearBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                stop = true;
+                cells.stream().forEach(cell -> pane.getChildren().remove(cell.getCircle()));
+                cells.clear();
             }
         });
 
