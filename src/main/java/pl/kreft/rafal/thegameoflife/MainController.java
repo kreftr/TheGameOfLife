@@ -13,10 +13,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static pl.kreft.rafal.thegameoflife.Config.SIZE;
+import static pl.kreft.rafal.thegameoflife.Config.SQUARE_SIZE;
 
 public class MainController {
 
@@ -31,6 +31,10 @@ public class MainController {
     @FXML
     private Button slowDownBtn;
     @FXML
+    private Button save;
+    @FXML
+    private Button load;
+    @FXML
     private Label statusLabel;
     @FXML
     private Label cyclesLabel;
@@ -41,17 +45,12 @@ public class MainController {
     @FXML
     private Label deadLabel;
 
-
-    private int size = 700;
-    private int spots = 100;
-    private int squareSize = size / spots;
-
     private int cycles = 0;
     private int speed = 1000;
-
-    private ArrayList<Cell> cells = new ArrayList<>();
+    private final ArrayList<Cell> cells = new ArrayList<>();
     private boolean isRunning = false;
     private boolean stop = false;
+    private final FileService fileService = new FileService();
 
 
     public int countNeighbours(Cell c){
@@ -60,20 +59,19 @@ public class MainController {
             if (!cell.equals(c) &&
                     Math.sqrt(
                             Math.pow(cell.getX()-c.getX(),2)+Math.pow(cell.getY()-c.getY(),2)
-                    ) <= squareSize*Math.sqrt(2))
+                    ) <= SQUARE_SIZE*Math.sqrt(2))
                 neighbours++;
         }
         return neighbours;
     }
 
-
     public ArrayList<Cell> cellsToCreate(){
         ArrayList<Cell> newCells = new ArrayList();
-        for (int i = 0; i < size; i+=squareSize){
-            for (int j = 0; j < size; j+=squareSize){
-                int x = i+squareSize/2;
-                int y = j+squareSize/2;
-                Cell newCell = new Cell(x, y, squareSize/3.0, new Circle());
+        for (int i = 0; i < SIZE; i+=SQUARE_SIZE){
+            for (int j = 0; j < SIZE; j+=SQUARE_SIZE){
+                int x = i+SQUARE_SIZE/2;
+                int y = j+SQUARE_SIZE/2;
+                Cell newCell = new Cell(x, y, SQUARE_SIZE/3.0, new Circle());
                 if (cells.stream().noneMatch(cell -> cell.getX()== x && cell.getY()== y) &&
                         countNeighbours(newCell) == 3) newCells.add(newCell);
             }
@@ -81,15 +79,25 @@ public class MainController {
         return newCells;
     }
 
+    public void clear() {
+        stop = isRunning;
+        cells.forEach(cell -> pane.getChildren().remove(cell.getCircle()));
+        cells.clear();
+        cycles = 0;
+        statusLabel.setText("Status: Stopped");
+        cyclesLabel.setText("Cycles: 0");
+        livingLabel.setText("Living: 0");
+        deadLabel.setText("Dead: 0");
+    }
 
     @FXML
     public void initialize(){
 
         Thread simulation = new Thread(this::runSimulation);
 
-        for (int i=0; i < size; i+=squareSize){
-            for (int j=0; j < size; j+=squareSize){
-                Rectangle r = new Rectangle(i, j, squareSize, squareSize);
+        for (int i=0; i < SIZE; i+=SQUARE_SIZE){
+            for (int j=0; j < SIZE; j+=SQUARE_SIZE){
+                Rectangle r = new Rectangle(i, j, SQUARE_SIZE, SQUARE_SIZE);
                 r.setFill(Color.WHITE);
                 r.setStroke(Color.BLACK);
                 pane.getChildren().add(r);
@@ -99,11 +107,11 @@ public class MainController {
         pane.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                int x = (int)(mouseEvent.getX() / squareSize) * squareSize + squareSize / 2;
-                int y = (int)(mouseEvent.getY() / squareSize) * squareSize + squareSize / 2;
+                int x = (int)(mouseEvent.getX() / SQUARE_SIZE) * SQUARE_SIZE + SQUARE_SIZE / 2;
+                int y = (int)(mouseEvent.getY() / SQUARE_SIZE) * SQUARE_SIZE + SQUARE_SIZE / 2;
                 if (cells.stream().noneMatch(cell -> cell.getX() == x && cell.getY() == y)){
                     Circle c = new Circle();
-                    double radius = squareSize / 3.0;
+                    double radius = SQUARE_SIZE / 3.0;
                     Cell cell = new Cell(x, y, radius, c);
                     cells.add(cell);
                     pane.getChildren().add(c);
@@ -138,14 +146,7 @@ public class MainController {
         clearBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                stop = true;
-                cells.stream().forEach(cell -> pane.getChildren().remove(cell.getCircle()));
-                cells.clear();
-                cycles = 0;
-                statusLabel.setText("Status: Stopped");
-                cyclesLabel.setText("Cycles: 0");
-                livingLabel.setText("Living: 0");
-                deadLabel.setText("Dead: 0");
+                clear();
             }
         });
 
@@ -165,6 +166,22 @@ public class MainController {
             }
         });
 
+        save.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                fileService.saveCellsState(cells);
+            }
+        });
+
+        load.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                clear();
+                fileService.loadCellsState(cells);
+                cells.forEach(cell -> {pane.getChildren().add(cell.getCircle()); cell.draw();});
+                livingLabel.setText("Living: "+cells.size());
+            }
+        });
     }
 
     void runSimulation(){
